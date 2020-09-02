@@ -8,6 +8,8 @@ public class Player : MonoBehaviour
     private float _speed = 1f;
     [SerializeField]
     private float _speedMultiplier = 2f;
+    [SerializeField]
+    private bool _thrusters = false;
 
     [SerializeField]
     private GameObject _laserPrefab = null;
@@ -73,6 +75,15 @@ public class Player : MonoBehaviour
         {
             FireLaser();
         }
+
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            _thrusters = true;
+        }
+        else
+        {
+            _thrusters = false;
+        }
     }
 
     void CalculateMovement()
@@ -82,7 +93,7 @@ public class Player : MonoBehaviour
 
         Vector3 direction = new Vector3(horizontal, vertical, 0);
 
-        if (_isSpeedBoostActive == false)
+        if (_isSpeedBoostActive == false && _thrusters == false)
         {
             transform.Translate(direction * _speed * Time.deltaTime);
         }
