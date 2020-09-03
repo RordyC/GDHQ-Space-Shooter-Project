@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    [Header("General")]
+
     [SerializeField]
     private float _speed = 1f;
     [SerializeField]
@@ -23,6 +25,11 @@ public class Player : MonoBehaviour
     private int _lives = 3;
 
     [SerializeField]
+    private int _score = 0;
+
+    [Header("Powerups")]
+
+    [SerializeField]
     private bool _isTripleShotActive = false;
     [SerializeField]
     private bool _isSpeedBoostActive = false;
@@ -33,9 +40,14 @@ public class Player : MonoBehaviour
     private GameObject _tripleShotPrefab = null;
     [SerializeField]
     private GameObject _shieldVisualizer = null;
-
     [SerializeField]
-    private int _score = 0;
+    private SpriteRenderer _shieldRenderer = null;
+    [SerializeField]
+    private Material _shieldMat = null;
+    [SerializeField]
+    private int _shieldStrength = 3;
+    [SerializeField]
+    private Color[] _shieldStrengthColors = null;
 
     private UIManager _uiManager;
 
@@ -64,6 +76,13 @@ public class Player : MonoBehaviour
         }
 
         _as = transform.GetComponent<AudioSource>();
+
+        _shieldMat = _shieldRenderer.material; //GameObject.Find("Shield").transform.GetComponent<Renderer>().material;
+
+        if (_shieldMat == null)
+        {
+            Debug.LogError("Shield mat is NULL!");
+        }
     }
 
     // Update is called once per frame
@@ -136,8 +155,27 @@ public class Player : MonoBehaviour
     {
         if (_isShieldActive)
         {
-            _isShieldActive = false;
-            _shieldVisualizer.SetActive(false);
+            _shieldStrength--;
+            switch (_shieldStrength)
+            {
+                case 0:
+                    _isShieldActive = false;
+                    _shieldVisualizer.SetActive(false);
+                    break;
+                case 1:
+                    _shieldMat.SetColor("_ShieldColor", _shieldStrengthColors[2]);
+                    break;
+                case 2:
+                    _shieldMat.SetColor("_ShieldColor", _shieldStrengthColors[1]);
+                    break;
+                case 3:
+                    _shieldMat.SetColor("_ShieldColor", _shieldStrengthColors[0]);
+                    break;
+                default:
+                    Debug.Log("Shield strength is messed up bud.");
+                    break;
+            }
+
             return;
         }
 
@@ -176,8 +214,10 @@ public class Player : MonoBehaviour
                 StartCoroutine(SpeedBoostPowerDownRoutine());
                 break;
             case 2:
+                _shieldStrength = 3;
                 _isShieldActive = true;
                 _shieldVisualizer.SetActive(true);
+                _shieldMat.SetColor("_ShieldColor", _shieldStrengthColors[0]);
                 break;
 
             default:
