@@ -27,6 +27,14 @@ public class Player : MonoBehaviour
     [SerializeField]
     private int _score = 0;
 
+    [SerializeField]
+    private int _ammo = 30;
+
+    [SerializeField]
+    private AudioSource _lowAmmoClip = null;
+    [SerializeField]
+    private AudioSource _noAmmoClip = null;
+
     [Header("Powerups")]
 
     [SerializeField]
@@ -90,9 +98,13 @@ public class Player : MonoBehaviour
     {
         CalculateMovement();
 
-        if (Input.GetKey(KeyCode.Space) && Time.time > _nextFire)
+        if (Input.GetKey(KeyCode.Space) && Time.time > _nextFire && _ammo >= 0)
         {
             FireLaser();
+        }
+        else if (Input.GetKeyDown(KeyCode.Space) && Time.time > _nextFire && _ammo <= 0)
+        {
+            _noAmmoClip.Play();
         }
 
         if (Input.GetKey(KeyCode.LeftShift))
@@ -135,7 +147,14 @@ public class Player : MonoBehaviour
     }
 
     void FireLaser()
-    {       
+    {
+        _ammo--;
+        
+        if (_ammo <= 5)
+        {
+            _lowAmmoClip.Play();
+        }
+
         if(_isTripleShotActive == true)
         {
             Instantiate(_tripleShotPrefab, transform.position, Quaternion.identity);
@@ -147,7 +166,7 @@ public class Player : MonoBehaviour
             _nextFire = Time.time + _fireRate;
         }
 
-        _as.Play();
+        _as.Play();       
         _as.pitch = Random.Range(0.9f,1f);
     }
 
@@ -192,7 +211,6 @@ public class Player : MonoBehaviour
                 engine.SetActive(true);
             }
         }
-
 
         if (_lives < 1)
         {
