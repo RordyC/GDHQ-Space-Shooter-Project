@@ -240,6 +240,25 @@ public class Player : MonoBehaviour
             case 3:
                 _ammo = 30;
                 break;
+            case 4:
+                if (_lives < 3)
+                {
+                    _lives++;
+                    _uiManager.UpdateLives(_lives);
+
+                    if (_engines[0].activeSelf == true && _engines[1].activeSelf == true)
+                    {
+                        _engines[Random.Range(0, 2)].SetActive(false);
+                    }
+                    else
+                    {
+                        foreach (var engine in _engines)
+                        {
+                            engine.SetActive(false);
+                        }
+                    }
+                }
+                break;
 
             default:
                 Debug.Log("Invalid powerup ID!");
