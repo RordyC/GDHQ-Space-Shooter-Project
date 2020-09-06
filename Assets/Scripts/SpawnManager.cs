@@ -42,7 +42,7 @@ public class SpawnManager : MonoBehaviour
         while (_isPlayerDead == false)
         {
             Vector3 posToSpawn = new Vector3(Random.Range(-9f, 9f), 11, 0);
-            GameObject powerup = Instantiate(_powerupPrefabs[Random.Range(0,3)],posToSpawn,Quaternion.identity);
+            GameObject powerup = Instantiate(_powerupPrefabs[Random.Range(0,4)],posToSpawn,Quaternion.identity);
             yield return new WaitForSeconds(7f);
         }
     }

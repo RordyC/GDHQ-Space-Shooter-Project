@@ -237,6 +237,9 @@ public class Player : MonoBehaviour
                 _shieldVisualizer.SetActive(true);
                 _shieldMat.SetColor("_ShieldColor", _shieldStrengthColors[0]);
                 break;
+            case 3:
+                _ammo = 30;
+                break;
 
             default:
                 Debug.Log("Invalid powerup ID!");
