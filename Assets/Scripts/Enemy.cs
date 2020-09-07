@@ -34,6 +34,8 @@ public class Enemy : MonoBehaviour
     [SerializeField]
     private bool _isShootingEnemy = true;
 
+    private bool _beingLasered = false;
+
     private float _fireRate = 3f;
 
     private CameraShake _cameraShake;
@@ -120,28 +122,30 @@ public class Enemy : MonoBehaviour
         else if (other.tag == "Laser")
         {
             Destroy(other.gameObject);
-
-            if (_player != null)
-            {
-                _player.AddToScore(10);
-            }
-
-            _health--;
-            _audioSource.volume = 0.4f;
-            _audioSource.pitch = Random.Range(0.8f, 1f);
-            _audioSource.PlayOneShot(_hitSound);
-            _tintColor = new Color(1,1,1,0.8f);
-
-            {
-                if(_health <= 0)
-                {
-                    _isShootingEnemy = false;
-                    DeathSequence();
-                }
-            }
-
+            Damage();
         }
+        else if (other.tag == "Laserbeam")
+        {
+            _beingLasered = true;
+            StartCoroutine(BeingLaseredRoutine());
+        }
+    }
 
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.tag == "Laserbeam")
+        {
+            _beingLasered = false;
+        }
+    }
+
+    IEnumerator BeingLaseredRoutine()
+    {
+        while (_beingLasered == true)
+        {
+            Damage();
+            yield return new WaitForSeconds(0.1f);
+        }
     }
 
     IEnumerator FireLaserSequence()
@@ -155,6 +159,26 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    void Damage()
+    {
+        if (_player != null)
+        {
+            _player.AddToScore(10);
+        }
+
+        _health--;
+        _audioSource.volume = 0.2f;
+        _audioSource.pitch = Random.Range(0.8f, 1f);
+        _audioSource.PlayOneShot(_hitSound);
+        _tintColor = new Color(1, 1, 1, 0.8f);
+
+        if (_health <= 0)
+        {
+            _isShootingEnemy = false;
+            DeathSequence();
+        }
+    }
+
     void DeathSequence()
     {
         _speed /= 2;
@@ -164,7 +188,7 @@ public class Enemy : MonoBehaviour
         _tintColor.a = 0;
         _material.SetColor("_Tint", _tintColor);
 
-        _audioSource.volume = 0.8f;
+        _audioSource.volume = 0.4f;
         _audioSource.pitch = Random.Range(0.8f, 1f);
         _audioSource.PlayOneShot(_deathSound);
 
@@ -172,6 +196,4 @@ public class Enemy : MonoBehaviour
 
         Destroy(this.gameObject, 1.8f);
     }
-
-
 }

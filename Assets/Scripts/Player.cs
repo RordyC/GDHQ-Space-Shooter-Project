@@ -43,9 +43,17 @@ public class Player : MonoBehaviour
     private bool _isSpeedBoostActive = false;
     [SerializeField]
     private bool _isShieldActive = false;
+    [SerializeField]
+    private bool _isLaserbeamActive = false;
 
     [SerializeField]
     private GameObject _tripleShotPrefab = null;
+
+    [SerializeField]
+    private GameObject _laserbeamGameObject = null;
+    [SerializeField]
+    private Laserbeam _laserbeam = null;
+
     [SerializeField]
     private GameObject _shieldVisualizer = null;
     [SerializeField]
@@ -91,6 +99,13 @@ public class Player : MonoBehaviour
         {
             Debug.LogError("Shield mat is NULL!");
         }
+
+        _laserbeam = GameObject.Find("Laserbeam").transform.GetComponent<Laserbeam>();
+
+        if (_laserbeam == null)
+        {
+            Debug.LogError("Laserbeam is NULL!");
+        }
     }
 
     // Update is called once per frame
@@ -98,9 +113,14 @@ public class Player : MonoBehaviour
     {
         CalculateMovement();
 
-        if (Input.GetKey(KeyCode.Space) && Time.time > _nextFire && _ammo >= 0)
+        if (Input.GetKey(KeyCode.Space) && Time.time > _nextFire && _ammo >= 0 && _isLaserbeamActive == false)
         {
             FireLaser();
+        }
+        else if (Input.GetKeyDown(KeyCode.Space) && _isLaserbeamActive == true)
+        {
+            _laserbeam.ActivateLaser();
+            _laserbeamGameObject.transform.position = transform.position;
         }
         else if (Input.GetKeyDown(KeyCode.Space) && Time.time > _nextFire && _ammo <= 0)
         {
@@ -114,6 +134,11 @@ public class Player : MonoBehaviour
         else
         {
             _thrusters = false;
+        }
+
+        if (Input.GetKeyUp(KeyCode.Space) && _isLaserbeamActive == true)
+        {
+            _laserbeam.DeactivateLaser();
         }
     }
 
@@ -143,7 +168,6 @@ public class Player : MonoBehaviour
         {
             transform.position = new Vector3(11.25f, transform.position.y, 0);
         }
-
     }
 
     void FireLaser()
@@ -194,7 +218,6 @@ public class Player : MonoBehaviour
                     Debug.Log("Shield strength is messed up bud.");
                     break;
             }
-
             return;
         }
 
@@ -214,6 +237,7 @@ public class Player : MonoBehaviour
 
         if (_lives < 1)
         {
+            _laserbeam.DeactivateLaser();
             _spawnManager.StopSpawning();
             Destroy(this.gameObject);
         }
@@ -259,6 +283,10 @@ public class Player : MonoBehaviour
                     }
                 }
                 break;
+            case 5:
+                _isLaserbeamActive = true;
+                StartCoroutine(LaserbeamPowerDownRoutine());
+                break;
 
             default:
                 Debug.Log("Invalid powerup ID!");
@@ -286,6 +314,13 @@ public class Player : MonoBehaviour
     {
         yield return new WaitForSeconds(5f);
         _isSpeedBoostActive = false;
+    }
+
+    IEnumerator LaserbeamPowerDownRoutine()
+    {
+        yield return new WaitForSeconds(5f);
+        _isLaserbeamActive = false;
+        _laserbeam.DeactivateLaser();
     }
 
     public void AddToScore(int score)
