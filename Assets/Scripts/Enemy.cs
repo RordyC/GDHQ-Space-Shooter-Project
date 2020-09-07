@@ -40,6 +40,9 @@ public class Enemy : MonoBehaviour
 
     private CameraShake _cameraShake;
 
+    private WaitForSeconds _laserbeamDamageCooldown= new WaitForSeconds(0.1f);
+    private WaitForSeconds _fireRateDelay;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -76,6 +79,7 @@ public class Enemy : MonoBehaviour
             Debug.Log("Camera shake is null!");
         }
 
+        _fireRateDelay = new WaitForSeconds(_fireRate);
     }
 
     // Update is called once per frame
@@ -144,7 +148,7 @@ public class Enemy : MonoBehaviour
         while (_beingLasered == true)
         {
             Damage();
-            yield return new WaitForSeconds(0.1f);
+            yield return _laserbeamDamageCooldown;
         }
     }
 
@@ -155,7 +159,7 @@ public class Enemy : MonoBehaviour
             GameObject laser = Instantiate(_laserPrefab, transform.position, Quaternion.identity);
             laser.transform.parent = this.transform;
             _fireRate = Random.Range(3f, 7f);
-            yield return new WaitForSeconds(_fireRate);
+            yield return _fireRateDelay;
         }
     }
 

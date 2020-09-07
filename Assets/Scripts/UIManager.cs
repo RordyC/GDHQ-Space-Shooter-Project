@@ -23,6 +23,8 @@ public class UIManager : MonoBehaviour
 
     private GManager _gameManager;
 
+    private WaitForSeconds _gameOverTextFlickerDelay = new WaitForSeconds(0.5f);
+
     private void Start()
     {
         _gameManager = GameObject.Find("Game_Manager").GetComponent<GManager>();
@@ -60,9 +62,9 @@ public class UIManager : MonoBehaviour
         while (true)
         {
             _gameOverText.gameObject.SetActive(true);
-            yield return new WaitForSeconds(0.5f);
+            yield return _gameOverTextFlickerDelay;
             _gameOverText.gameObject.SetActive(false);
-            yield return new WaitForSeconds(0.5f);
+            yield return _gameOverTextFlickerDelay;
 
         }
     }

@@ -16,6 +16,14 @@ public class SpawnManager : MonoBehaviour
     [SerializeField]
     private float _powerupSpawnRate = 7f;
 
+    private WaitForSeconds _oneSecondDelay = new WaitForSeconds(1f);
+    private WaitForSeconds _powerupSpawnDelay;
+
+    private void Start()
+    {
+        _powerupSpawnDelay = new WaitForSeconds(_powerupSpawnRate);
+    }
+
     public void StartSpawning()
     {
         StartCoroutine(SpawnEnemies());
@@ -29,24 +37,24 @@ public class SpawnManager : MonoBehaviour
 
     IEnumerator SpawnEnemies()
     {
-        yield return new WaitForSeconds(1f);
+        yield return _oneSecondDelay;
         while (_isPlayerDead == false)
         {
             Vector3 posToSpawn = new Vector3(Random.Range(-9.25f, 9.25f), 10, 0);
             GameObject enemy = Instantiate(_enemyPrefab, posToSpawn, Quaternion.identity);
             enemy.transform.parent = _enemyContainer.transform;
-            yield return new WaitForSeconds(1f);
+            yield return _oneSecondDelay;
         }
     }
 
     IEnumerator SpawnPowerupsRoutine()
     {
-        yield return new WaitForSeconds(1f);
+        yield return _oneSecondDelay;
         while (_isPlayerDead == false)
         {
             Vector3 posToSpawn = new Vector3(Random.Range(-9f, 9f), 11, 0);
             GameObject powerup = Instantiate(_powerupPrefabs[Random.Range(0,_powerupPrefabs.Length)],posToSpawn,Quaternion.identity);
-            yield return new WaitForSeconds(_powerupSpawnRate);
+            yield return _powerupSpawnDelay;
         }
     }
 }

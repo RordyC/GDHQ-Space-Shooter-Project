@@ -72,6 +72,8 @@ public class Player : MonoBehaviour
 
     private AudioSource _as;
 
+    private WaitForSeconds _powerupCooldownDelay = new WaitForSeconds(5f);
+
     // Start is called before the first frame update
     void Start()
     {
@@ -306,19 +308,19 @@ public class Player : MonoBehaviour
 
     IEnumerator TripleShotPowerDownRoutine()
     {
-        yield return new WaitForSeconds(5f);
+        yield return _powerupCooldownDelay;
         _isTripleShotActive = false;
     }
 
     IEnumerator SpeedBoostPowerDownRoutine()
     {
-        yield return new WaitForSeconds(5f);
+        yield return _powerupCooldownDelay;
         _isSpeedBoostActive = false;
     }
 
     IEnumerator LaserbeamPowerDownRoutine()
     {
-        yield return new WaitForSeconds(5f);
+        yield return _powerupCooldownDelay;
         _isLaserbeamActive = false;
         _laserbeam.DeactivateLaser();
     }
