@@ -31,6 +31,9 @@ public class Player : MonoBehaviour
     private int _ammo = 30;
 
     [SerializeField]
+    private float _thrusterFuel = 2f;
+
+    [SerializeField]
     private AudioSource _lowAmmoClip = null;
     [SerializeField]
     private AudioSource _noAmmoClip = null;
@@ -114,6 +117,7 @@ public class Player : MonoBehaviour
     void Update()
     {
         CalculateMovement();
+        CalculateThrusters();
 
         if (Input.GetKey(KeyCode.Space) && Time.time > _nextFire && _ammo >= 0 && _isLaserbeamActive == false)
         {
@@ -127,15 +131,6 @@ public class Player : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.Space) && Time.time > _nextFire && _ammo <= 0)
         {
             _noAmmoClip.Play();
-        }
-
-        if (Input.GetKey(KeyCode.LeftShift))
-        {
-            _thrusters = true;
-        }
-        else
-        {
-            _thrusters = false;
         }
 
         if (Input.GetKeyUp(KeyCode.Space) && _isLaserbeamActive == true)
@@ -170,6 +165,41 @@ public class Player : MonoBehaviour
         {
             transform.position = new Vector3(11.25f, transform.position.y, 0);
         }
+    }
+
+    void CalculateThrusters()
+    {
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            if (_thrusterFuel > 0)
+            {
+                _thrusters = true;
+
+                _thrusterFuel -= 1 * Time.deltaTime;
+
+                if (_thrusterFuel <= 0)
+                {
+                    _thrusters = false;
+                    _thrusterFuel = 0;
+                }
+            }
+        }
+        else
+        {
+            _thrusters = false;
+
+            if (_thrusterFuel < 2)
+            {
+                _thrusterFuel += 0.5f * Time.deltaTime;
+
+                if (_thrusterFuel > 2)
+                {
+                    _thrusterFuel = 2;
+                }
+            }
+        }
+
+        _uiManager.UpdateThrusterFuel(_thrusterFuel);
     }
 
     void FireLaser()
@@ -267,34 +297,38 @@ public class Player : MonoBehaviour
                 _ammo = 30;
                 break;
             case 4:
-                if (_lives < 3)
-                {
-                    _lives++;
-                    _uiManager.UpdateLives(_lives);
-
-                    if (_engines[0].activeSelf == true && _engines[1].activeSelf == true)
-                    {
-                        _engines[Random.Range(0, 2)].SetActive(false);
-                    }
-                    else
-                    {
-                        foreach (var engine in _engines)
-                        {
-                            engine.SetActive(false);
-                        }
-                    }
-                }
+                Heal();                  
                 break;
             case 5:
                 _isLaserbeamActive = true;
                 StartCoroutine(LaserbeamPowerDownRoutine());
                 break;
-
             default:
                 Debug.Log("Invalid powerup ID!");
                 break;
         }
 
+    }
+
+    void Heal()
+    {
+        if (_lives < 3)
+        {
+            _lives++;
+            _uiManager.UpdateLives(_lives);
+
+            if (_engines[0].activeSelf == true && _engines[1].activeSelf == true)
+            {
+                _engines[Random.Range(0, 2)].SetActive(false);
+            }
+            else
+            {
+                foreach (var engine in _engines)
+                {
+                    engine.SetActive(false);
+                }
+            }
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D other)
