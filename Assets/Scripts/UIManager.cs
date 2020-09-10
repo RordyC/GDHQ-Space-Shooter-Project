@@ -21,16 +21,18 @@ public class UIManager : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI _restartText = null;
 
+    [Header("Thrusters")]
+
     [SerializeField]
     private Slider _thrusterFuelSlider = null;
 
     [SerializeField]
-    private Image _thrustFuelImage = null;
+    private Image _thrusterFuelImage = null;
 
     private GManager _gameManager;
 
     private WaitForSeconds _gameOverTextFlickerDelay = new WaitForSeconds(0.5f);
-    private WaitForSeconds _hideSliderDelay = new WaitForSeconds(1f);
+    private WaitForSeconds _hideSliderDelay = new WaitForSeconds(0.5f);
 
     [SerializeField]
     private bool _hidingSlider = true;
@@ -48,7 +50,7 @@ public class UIManager : MonoBehaviour
             Debug.Log("GManager is null!");
         }
 
-         _tempColor = _thrustFuelImage.color;
+         _tempColor = _thrusterFuelImage.color;
     }
 
     private void Update()
@@ -56,7 +58,7 @@ public class UIManager : MonoBehaviour
         if (_tempColor.a > 0 && _showSlider == false)
         {
             _tempColor.a -= 1 * Time.deltaTime;
-            _thrustFuelImage.color = _tempColor;
+            _thrusterFuelImage.color = _tempColor;
 
             if (_tempColor.a < 0)
                 _tempColor.a = 0;
@@ -64,7 +66,7 @@ public class UIManager : MonoBehaviour
         else if (_showSlider == true && _tempColor.a < 1)
         {
             _tempColor.a += 1 * Time.deltaTime;
-            _thrustFuelImage.color = _tempColor;
+            _thrusterFuelImage.color = _tempColor;
             if (_tempColor.a > 1)
                 _tempColor.a = 1;
         }

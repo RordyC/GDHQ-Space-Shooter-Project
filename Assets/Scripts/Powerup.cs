@@ -40,7 +40,6 @@ public class Powerup : MonoBehaviour
             }
             AudioSource.PlayClipAtPoint(_clip, new Vector3(0,1,-10));
             Destroy(this.gameObject);
-
         }
     }
 }

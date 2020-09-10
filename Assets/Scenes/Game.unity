@@ -883,7 +883,7 @@ MonoBehaviour:
   _gameOverText: {fileID: 236125836}
   _restartText: {fileID: 2130158675}
   _thrusterFuelSlider: {fileID: 726467260}
-  _thrustFuelImage: {fileID: 1776208757}
+  _thrusterFuelImage: {fileID: 1776208757}
   _hidingSlider: 0
   _showSlider: 0
 --- !u!114 &601991248
@@ -1383,10 +1383,10 @@ RectTransform:
   m_Father: {fileID: 601991251}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: -50, y: -40}
-  m_SizeDelta: {x: 100, y: 50}
+  m_AnchorMin: {x: 1, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: -25}
+  m_SizeDelta: {x: 250, y: 25}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1296318831
 GameObject:

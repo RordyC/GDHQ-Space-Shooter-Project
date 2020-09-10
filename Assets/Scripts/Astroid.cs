@@ -42,6 +42,7 @@ public class Astroid : MonoBehaviour
             Explosion.transform.parent = this.transform;
 
             _spawnManager.StartSpawning();
+
             Destroy(this.gameObject, 2f);
         }
     }

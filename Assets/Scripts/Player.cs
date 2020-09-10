@@ -98,7 +98,7 @@ public class Player : MonoBehaviour
 
         _as = transform.GetComponent<AudioSource>();
 
-        _shieldMat = _shieldRenderer.material; //GameObject.Find("Shield").transform.GetComponent<Renderer>().material;
+        _shieldMat = _shieldRenderer.material;
 
         if (_shieldMat == null)
         {
@@ -307,7 +307,6 @@ public class Player : MonoBehaviour
                 Debug.Log("Invalid powerup ID!");
                 break;
         }
-
     }
 
     void Heal()

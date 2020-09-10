@@ -53,7 +53,35 @@ public class SpawnManager : MonoBehaviour
         while (_isPlayerDead == false)
         {
             Vector3 posToSpawn = new Vector3(Random.Range(-9f, 9f), 11, 0);
-            GameObject powerup = Instantiate(_powerupPrefabs[Random.Range(0,_powerupPrefabs.Length)],posToSpawn,Quaternion.identity);
+            int random = Random.Range(0, 101);
+            int powerupToSpawn = 7;
+
+            if (random >= 0 && random <= 20)
+            {
+                powerupToSpawn = 0;
+            }
+            else if (random >= 21 && random <= 40)
+            {
+                powerupToSpawn = 1;
+            }
+            else if (random >= 41 && random <= 60)
+            {
+                powerupToSpawn = 3;
+            }
+            else if (random >= 61 && random <= 85)
+            {
+                powerupToSpawn = 2;
+            }
+            else if (random >= 86 && random <= 95)
+            {
+                powerupToSpawn = 4;
+            }
+            else if (random >= 96 && random <= 100)
+            {
+                powerupToSpawn = 5;
+            }
+
+            GameObject powerup = Instantiate(_powerupPrefabs[powerupToSpawn],posToSpawn,Quaternion.identity);
             yield return _powerupSpawnDelay;
         }
     }

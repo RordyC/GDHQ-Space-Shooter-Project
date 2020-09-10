@@ -48,6 +48,11 @@ public class Enemy : MonoBehaviour
     {
         _player = GameObject.Find("Player").GetComponent<Player>();
 
+        if (_player == null)
+        {
+            Debug.LogError("Player is NULL!");
+        }
+
         _animator = transform.GetComponent<Animator>();
 
         if (_animator == null)
@@ -63,6 +68,11 @@ public class Enemy : MonoBehaviour
         }
 
         _material = transform.GetComponent<SpriteRenderer>().material;
+
+        if (_material == null)
+        {
+            Debug.LogError("Material is NULL!");
+        }
 
         _health = Random.Range(1, 5);
 
@@ -98,7 +108,6 @@ public class Enemy : MonoBehaviour
             _tintColor.a = 0;
             _material.SetColor("_Tint", _tintColor);
         }
-
     }
 
     void Movement()
