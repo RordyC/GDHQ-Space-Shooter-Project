@@ -43,6 +43,22 @@ public class Enemy : MonoBehaviour
     private WaitForSeconds _laserbeamDamageCooldown= new WaitForSeconds(0.1f);
     private WaitForSeconds _fireRateDelay;
 
+    private enum MovementType
+    {
+        Down,
+        Left,
+        Right,
+    }
+
+    private int _movementRandomizer = 0;
+
+    [Header("Movement")]
+
+    [SerializeField]
+    private MovementType _movementType = MovementType.Down;
+
+    private Vector3 _leftResetPos;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -90,6 +106,23 @@ public class Enemy : MonoBehaviour
         }
 
         _fireRateDelay = new WaitForSeconds(_fireRate);
+
+        _movementRandomizer = Random.Range(0, 4);
+        switch(_movementRandomizer)
+        {
+            case 0:
+                _movementType = MovementType.Down;
+                break;
+            case 1:
+                _movementType = MovementType.Left;
+                break;
+            case 2:
+                _movementType = MovementType.Right;
+                break;
+            default:
+                _movementType = MovementType.Down;
+                break;
+        }
     }
 
     // Update is called once per frame
@@ -112,12 +145,36 @@ public class Enemy : MonoBehaviour
 
     void Movement()
     {
-        transform.Translate(Vector3.down * _speed * Time.deltaTime);
-
-        if (transform.position.y <= -6f)
+        switch(_movementType)
         {
-            transform.position = new Vector3(Random.Range(-9.25f, 9.25f), 10,0);
+            case MovementType.Down:
+                transform.Translate(Vector3.down * _speed * Time.deltaTime);
+
+                if (transform.position.y <= -6f)
+                {
+                    transform.position = new Vector3(Random.Range(-9.25f, 9.25f), 10, 0);
+                }
+                break;
+
+            case MovementType.Left:
+                transform.Translate(Vector3.left * _speed * Time.deltaTime);
+
+                if (transform.position.x <= -11.25f)
+                {
+                    transform.position = new Vector3(11.25f, 5.5f, 0);
+                }
+                break;
+
+            case MovementType.Right:
+                transform.Translate(Vector3.right * _speed * Time.deltaTime);
+
+                if (transform.position.x >= 11.25f)
+                {
+                    transform.position = new Vector3(-11.25f, 2.75f, 0);
+                }
+                break;
         }
+        
     }
 
     private void OnTriggerEnter2D (Collider2D other)
@@ -166,7 +223,14 @@ public class Enemy : MonoBehaviour
         while (_isShootingEnemy == true)
         {
             GameObject laser = Instantiate(_laserPrefab, transform.position, Quaternion.identity);
-            laser.transform.parent = this.transform;
+            if (_movementType == MovementType.Down)
+            {
+                laser.transform.parent = this.transform;
+            }
+            else
+            {
+                laser.transform.parent = transform.parent;
+            }
             _fireRate = Random.Range(3f, 7f);
             yield return _fireRateDelay;
         }

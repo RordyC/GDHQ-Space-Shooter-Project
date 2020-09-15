@@ -56,6 +56,7 @@ MonoBehaviour:
   _laserPrefab: {fileID: 7263147302341014713, guid: 7c8ca046d443c994a856e604714a26c0,
     type: 3}
   _isShootingEnemy: 0
+  _movementType: 0
 --- !u!212 &6329011486288012852
 SpriteRenderer:
   m_ObjectHideFlags: 0
