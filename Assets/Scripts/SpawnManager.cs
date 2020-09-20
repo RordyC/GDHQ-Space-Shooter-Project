@@ -10,6 +10,8 @@ public class SpawnManager : MonoBehaviour
     private GameObject _enemyContainer = null;
     private bool _isPlayerDead = false;
 
+    [Header("Powerups")]
+
     [SerializeField]
     private GameObject[] _powerupPrefabs = null;
 
@@ -19,15 +21,43 @@ public class SpawnManager : MonoBehaviour
     private WaitForSeconds _oneSecondDelay = new WaitForSeconds(1f);
     private WaitForSeconds _powerupSpawnDelay;
 
+    private UIManager _uiManager;
+
+    [Header("Game")]
+
+    [SerializeField]
+    private bool _gameStarted = false;
+    [SerializeField]
+    private int _wave = 0;
+
+    [Header("Enemies")]
+
+    [SerializeField]
+    private int _enemiesToSpawn = 0;
+
+    [SerializeField]
+    private int _enemyDifficulty = 0;
+
+    [SerializeField]
+    private List<GameObject> _enemies = null;
+
     private void Start()
     {
+        _uiManager = GameObject.Find("Canvas").transform.GetComponent<UIManager>();
+        if (_uiManager == null)
+        {
+            Debug.LogError("UI Manager is NULL!");
+        }
+
         _powerupSpawnDelay = new WaitForSeconds(_powerupSpawnRate);
     }
 
-    public void StartSpawning()
+    private void Update()
     {
-        StartCoroutine(SpawnEnemies());
-        StartCoroutine(SpawnPowerupsRoutine());
+        if (_enemiesToSpawn == 0 && _enemies.Count == 0 && _wave < 5 && _gameStarted == true)
+        {
+            StartCoroutine(StartNextWave());
+        }
     }
 
     public void StopSpawning()
@@ -35,16 +65,70 @@ public class SpawnManager : MonoBehaviour
         _isPlayerDead = true;
     }
 
+    public void RemoveObject(GameObject gameObject)
+    {
+        if (_enemies.Contains(gameObject))
+        _enemies.Remove(gameObject);
+    }
+
+    public void StartGame()
+    {
+        _gameStarted = true;
+        StartCoroutine(StartNextWave());
+        StartCoroutine(SpawnPowerupsRoutine());
+    }
+
+    private void NextWave()
+    {
+        Debug.Log("Next Wave!");
+        _wave++;
+        _uiManager.UpdateWave(_wave);
+
+        switch (_wave)
+        {
+            case 1:
+                _enemiesToSpawn = 15;
+                break;
+            case 2:
+                _enemyDifficulty = 1;
+                _enemiesToSpawn = 20;
+                break;
+            case 3:
+                _enemyDifficulty = 2;
+                _enemiesToSpawn = 25;
+                break;
+            case 4:
+                _enemiesToSpawn = 30;
+                break;
+            case 5:
+                _enemiesToSpawn = 35;
+                break;
+            default:
+                Debug.LogError("Invalid Wave!");
+                break;
+        }
+    }
+
     IEnumerator SpawnEnemies()
     {
         yield return _oneSecondDelay;
-        while (_isPlayerDead == false)
+        while (_isPlayerDead == false && _enemiesToSpawn > 0)
         {
             Vector3 posToSpawn = new Vector3(Random.Range(-9.25f, 9.25f), 10, 0);
             GameObject enemy = Instantiate(_enemyPrefab, posToSpawn, Quaternion.identity);
+            enemy.transform.GetComponent<Enemy>().difficulty = _enemyDifficulty;
             enemy.transform.parent = _enemyContainer.transform;
+            _enemies.Add(enemy);
+            _enemiesToSpawn--;
             yield return _oneSecondDelay;
         }
+    }
+
+    IEnumerator StartNextWave()
+    {
+        NextWave();
+        yield return new WaitForSeconds(4f);
+        StartCoroutine(SpawnEnemies());
     }
 
     IEnumerator SpawnPowerupsRoutine()

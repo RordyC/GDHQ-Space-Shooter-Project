@@ -28,7 +28,10 @@ public class Player : MonoBehaviour
     private int _score = 0;
 
     [SerializeField]
-    private int _ammo = 30;
+    private int _maxAmmo = 50;
+
+    [SerializeField]
+    private int _ammo = 0;
 
     [SerializeField]
     private float _thrusterFuel = 2f;
@@ -111,6 +114,10 @@ public class Player : MonoBehaviour
         {
             Debug.LogError("Laserbeam is NULL!");
         }
+
+        _ammo = _maxAmmo;
+        _uiManager.UpdateMaxAmmo(_maxAmmo);
+        _uiManager.UpdateAmmoCount(_ammo);
     }
 
     // Update is called once per frame
@@ -119,7 +126,7 @@ public class Player : MonoBehaviour
         CalculateMovement();
         CalculateThrusters();
 
-        if (Input.GetKey(KeyCode.Space) && Time.time > _nextFire && _ammo >= 0 && _isLaserbeamActive == false)
+        if (Input.GetKey(KeyCode.Space) && Time.time > _nextFire && _ammo >= 1 && _isLaserbeamActive == false)
         {
             FireLaser();
         }
@@ -205,7 +212,7 @@ public class Player : MonoBehaviour
     void FireLaser()
     {
         _ammo--;
-        
+        _uiManager.UpdateAmmoCount(_ammo);
         if (_ammo <= 5)
         {
             _lowAmmoClip.Play();
@@ -294,7 +301,8 @@ public class Player : MonoBehaviour
                 _shieldMat.SetColor("_ShieldColor", _shieldStrengthColors[0]);
                 break;
             case 3:
-                _ammo = 30;
+                _ammo = _maxAmmo;
+                _uiManager.UpdateAmmoCount(_ammo);
                 break;
             case 4:
                 Heal();                  

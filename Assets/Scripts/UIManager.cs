@@ -21,6 +21,17 @@ public class UIManager : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI _restartText = null;
 
+    [SerializeField]
+    private TextMeshProUGUI _ammoText = null;
+
+    [SerializeField]
+    private TextMeshProUGUI _waveText = null;
+
+    [SerializeField]
+    private Animator _waveTextAnimator = null;
+
+    private int _maxAmmo = 0;
+
     [Header("Thrusters")]
 
     [SerializeField]
@@ -102,6 +113,23 @@ public class UIManager : MonoBehaviour
             _hidingSlider = false;
             _showSlider = true;
         }
+    }
+
+    public void UpdateMaxAmmo(int maxAmmo)
+    {
+        _maxAmmo = maxAmmo;
+    }
+
+    public void UpdateAmmoCount(int ammoAmount)
+    {
+        _ammoText.text = "Ammo: " + ammoAmount + "/" + _maxAmmo;
+    }
+
+    public void UpdateWave(int wave)
+    {
+        _waveText.text = "Wave: " + wave;
+
+        _waveTextAnimator.SetTrigger("Flash");
     }
 
     void GameOverSequence()

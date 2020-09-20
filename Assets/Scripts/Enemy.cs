@@ -31,6 +31,10 @@ public class Enemy : MonoBehaviour
     [SerializeField]
     private GameObject _laserPrefab = null;
 
+    [Header("AI")]
+
+    public int difficulty = 0;
+
     [SerializeField]
     private bool _isShootingEnemy = true;
 
@@ -43,6 +47,8 @@ public class Enemy : MonoBehaviour
     private WaitForSeconds _laserbeamDamageCooldown= new WaitForSeconds(0.1f);
     private WaitForSeconds _fireRateDelay;
 
+    private SpawnManager _spawnManager;
+
     private enum MovementType
     {
         Down,
@@ -51,8 +57,6 @@ public class Enemy : MonoBehaviour
     }
 
     private int _movementRandomizer = 0;
-
-    [Header("Movement")]
 
     [SerializeField]
     private MovementType _movementType = MovementType.Down;
@@ -67,6 +71,13 @@ public class Enemy : MonoBehaviour
         if (_player == null)
         {
             Debug.LogError("Player is NULL!");
+        }
+
+        _spawnManager = GameObject.Find("Spawn_Manager").GetComponent<SpawnManager>();
+
+        if (_spawnManager == null)
+        {
+            Debug.LogError("SpawnManager is NULL!");
         }
 
         _animator = transform.GetComponent<Animator>();
@@ -92,12 +103,6 @@ public class Enemy : MonoBehaviour
 
         _health = Random.Range(1, 5);
 
-        if (Time.time > 40f)
-        {
-            _isShootingEnemy = true;
-            StartCoroutine(FireLaserSequence());
-        }
-
         _cameraShake = GameObject.Find("Main Camera").GetComponent<CameraShake>();
 
         if (_cameraShake == null)
@@ -106,8 +111,26 @@ public class Enemy : MonoBehaviour
         }
 
         _fireRateDelay = new WaitForSeconds(_fireRate);
+        
+        switch (difficulty)
+        {
+            case 0:
+                _movementRandomizer = 0;
+                break;
+            case 1:
+                _movementRandomizer = 0;
+                break;
+            case 2:
+                _movementRandomizer = Random.Range(0, 4);
 
-        _movementRandomizer = Random.Range(0, 4);
+                _isShootingEnemy = true;
+                StartCoroutine(FireLaserSequence());
+                break;
+            default:
+                _movementRandomizer = 0;
+                break;
+        }
+
         switch(_movementRandomizer)
         {
             case 0:
@@ -270,7 +293,7 @@ public class Enemy : MonoBehaviour
         _audioSource.PlayOneShot(_deathSound);
 
         StartCoroutine(_cameraShake.Shake(0.1f, 0.1f));
-
+        _spawnManager.RemoveObject(this.gameObject);
         Destroy(this.gameObject, 1.8f);
     }
 }
