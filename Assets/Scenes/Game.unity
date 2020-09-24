@@ -2038,7 +2038,7 @@ MonoBehaviour:
   - {fileID: 4571416393853227545, guid: 8211d27b630f01f468c94cf1309205d6, type: 3}
   _powerupSpawnRate: 7
   _gameStarted: 0
-  _wave: 0
+  _wave: 5
   _enemiesToSpawn: 0
   _enemyDifficulty: 0
   _enemies: []

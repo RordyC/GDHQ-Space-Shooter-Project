@@ -55,7 +55,7 @@ public class SpawnManager : MonoBehaviour
 
     private void Update()
     {
-        if (_enemiesToSpawn == 0 && _enemies.Count == 0 && _wave < 5 && _gameStarted == true)
+        if (_enemiesToSpawn == 0 && _enemies.Count == 0 && _wave < 6 && _gameStarted == true)
         {
             StartCoroutine(StartNextWave());
         }
@@ -103,6 +103,10 @@ public class SpawnManager : MonoBehaviour
                 break;
             case 5:
                 _enemiesToSpawn = 35;
+                break;
+            case 6:
+                _enemyDifficulty = 3;
+                _enemiesToSpawn = 40;
                 break;
             default:
                 Debug.LogError("Invalid Wave!");

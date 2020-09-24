@@ -31,6 +31,11 @@ public class Enemy : MonoBehaviour
     [SerializeField]
     private GameObject _laserPrefab = null;
 
+    [SerializeField]
+    private GameObject _shield = null;
+
+    private bool _shieldActive = false;
+
     [Header("AI")]
 
     public int difficulty = 0;
@@ -125,6 +130,19 @@ public class Enemy : MonoBehaviour
 
                 _isShootingEnemy = true;
                 StartCoroutine(FireLaserSequence());
+                break;
+            case 3:
+                _movementRandomizer = Random.Range(0, 4);
+
+                _isShootingEnemy = true;
+                StartCoroutine(FireLaserSequence());
+
+                int hasShield = Random.Range(0, 3);
+                if (hasShield == 2)
+                {
+                    _shield.SetActive(true);
+                    _shieldActive = true;
+                }
                 break;
             default:
                 _movementRandomizer = 0;
@@ -261,6 +279,13 @@ public class Enemy : MonoBehaviour
 
     void Damage()
     {
+        if (_shieldActive == true)
+        {
+            _shieldActive = false;
+            _shield.SetActive(false);
+            return;
+        }
+
         if (_player != null)
         {
             _player.AddToScore(10);
@@ -275,6 +300,7 @@ public class Enemy : MonoBehaviour
         if (_health <= 0)
         {
             _isShootingEnemy = false;
+            _shield.SetActive(false);
             DeathSequence();
         }
     }
