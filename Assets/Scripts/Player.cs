@@ -9,7 +9,7 @@ public class Player : MonoBehaviour
     [SerializeField]
     private float _speed = 1f;
     [SerializeField]
-    private float _speedMultiplier = 2f;
+    private float _speedMultiplier = 1.5f;
     [SerializeField]
     private bool _thrusters = false;
 
@@ -51,6 +51,8 @@ public class Player : MonoBehaviour
     private bool _isShieldActive = false;
     [SerializeField]
     private bool _isLaserbeamActive = false;
+    [SerializeField]
+    private bool _isShockActive = false;
 
     [SerializeField]
     private GameObject _tripleShotPrefab = null;
@@ -70,6 +72,8 @@ public class Player : MonoBehaviour
     private int _shieldStrength = 3;
     [SerializeField]
     private Color[] _shieldStrengthColors = null;
+    [SerializeField]
+    private ParticleSystem _electricityParticles = null;
 
     private UIManager _uiManager;
 
@@ -118,6 +122,8 @@ public class Player : MonoBehaviour
         _ammo = _maxAmmo;
         _uiManager.UpdateMaxAmmo(_maxAmmo);
         _uiManager.UpdateAmmoCount(_ammo);
+
+        _electricityParticles.Stop();
     }
 
     // Update is called once per frame
@@ -291,8 +297,11 @@ public class Player : MonoBehaviour
                 StartCoroutine(TripleShotPowerDownRoutine());
                 break;
             case 1:
-                _isSpeedBoostActive = true;
-                StartCoroutine(SpeedBoostPowerDownRoutine());
+                if (_isShockActive == false)
+                {
+                    _isSpeedBoostActive = true;
+                    StartCoroutine(SpeedBoostPowerDownRoutine());
+                }
                 break;
             case 2:
                 _shieldStrength = 3;
@@ -310,6 +319,13 @@ public class Player : MonoBehaviour
             case 5:
                 _isLaserbeamActive = true;
                 StartCoroutine(LaserbeamPowerDownRoutine());
+                break;
+            case 6:
+                _isSpeedBoostActive = true;
+                _speedMultiplier = 0.25f;
+                _electricityParticles.Play();
+                _isShockActive = true;
+                StartCoroutine(ShockPowerdownRoutine());
                 break;
             default:
                 Debug.Log("Invalid powerup ID!");
@@ -356,7 +372,10 @@ public class Player : MonoBehaviour
     IEnumerator SpeedBoostPowerDownRoutine()
     {
         yield return _powerupCooldownDelay;
-        _isSpeedBoostActive = false;
+        if (_isShockActive == false)
+        {
+            _isSpeedBoostActive = false;
+        }
     }
 
     IEnumerator LaserbeamPowerDownRoutine()
@@ -364,6 +383,15 @@ public class Player : MonoBehaviour
         yield return _powerupCooldownDelay;
         _isLaserbeamActive = false;
         _laserbeam.DeactivateLaser();
+    }
+
+    IEnumerator ShockPowerdownRoutine()
+    {
+        yield return _powerupCooldownDelay;
+        _isShockActive = false;
+        _isSpeedBoostActive = false;
+        _speedMultiplier = 1.5f;
+        _electricityParticles.Stop();
     }
 
     public void AddToScore(int score)

@@ -20,6 +20,7 @@ public class SpawnManager : MonoBehaviour
 
     private WaitForSeconds _oneSecondDelay = new WaitForSeconds(1f);
     private WaitForSeconds _powerupSpawnDelay;
+    private WaitForSeconds _nextWaveDelay = new WaitForSeconds(4f);
 
     private UIManager _uiManager;
 
@@ -127,7 +128,7 @@ public class SpawnManager : MonoBehaviour
     IEnumerator StartNextWave()
     {
         NextWave();
-        yield return new WaitForSeconds(4f);
+        yield return _nextWaveDelay;
         StartCoroutine(SpawnEnemies());
     }
 
@@ -137,7 +138,7 @@ public class SpawnManager : MonoBehaviour
         while (_isPlayerDead == false)
         {
             Vector3 posToSpawn = new Vector3(Random.Range(-9f, 9f), 11, 0);
-            int random = Random.Range(0, 101);
+            int random = Random.Range(0, 111);
             int powerupToSpawn = 7;
 
             if (random >= 0 && random <= 20)
@@ -163,6 +164,10 @@ public class SpawnManager : MonoBehaviour
             else if (random >= 96 && random <= 100)
             {
                 powerupToSpawn = 5;
+            }
+            else if (random >= 101 && random <= 110)
+            {
+                powerupToSpawn = 6;
             }
 
             GameObject powerup = Instantiate(_powerupPrefabs[powerupToSpawn],posToSpawn,Quaternion.identity);
