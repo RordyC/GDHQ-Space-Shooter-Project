@@ -22,6 +22,8 @@ public class Enemy : MonoBehaviour
     [SerializeField]
     private int _health = 1;
 
+    private bool _isDead = false;
+
     private Material _material;
     private float _materialFadeSpeed = 6f;
 
@@ -41,7 +43,10 @@ public class Enemy : MonoBehaviour
     public int difficulty = 0;
 
     [SerializeField]
-    private bool _isShootingEnemy = true;
+    private bool _isShootingEnemy = false;
+
+    [SerializeField]
+    private bool _canRamPlayer = false;
 
     private bool _beingLasered = false;
 
@@ -143,6 +148,12 @@ public class Enemy : MonoBehaviour
                     _shield.SetActive(true);
                     _shieldActive = true;
                 }
+
+                int hasRam = Random.Range(0, 2);
+                if (hasRam == 1 && _movementRandomizer == 0)
+                {
+                    _canRamPlayer = true;
+                }
                 break;
             default:
                 _movementRandomizer = 0;
@@ -182,6 +193,20 @@ public class Enemy : MonoBehaviour
             _tintColor.a = 0;
             _material.SetColor("_Tint", _tintColor);
         }
+
+        if (_canRamPlayer == true && _isDead == false)
+        {
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, 5f, 1 << 8);
+            if (hit.collider != null)
+            {
+                if (hit.collider.CompareTag("Player"))
+                    _speed = 8;
+            }
+            else if (_speed > 4)
+            {
+                _speed -= 4 * Time.deltaTime;
+            }
+        }
     }
 
     void Movement()
@@ -191,7 +216,7 @@ public class Enemy : MonoBehaviour
             case MovementType.Down:
                 transform.Translate(Vector3.down * _speed * Time.deltaTime);
 
-                if (transform.position.y <= -6f)
+                if (transform.position.y <= -6f && _isDead == false)
                 {
                     transform.position = new Vector3(Random.Range(-9.25f, 9.25f), 10, 0);
                 }
@@ -200,7 +225,7 @@ public class Enemy : MonoBehaviour
             case MovementType.Left:
                 transform.Translate(Vector3.left * _speed * Time.deltaTime);
 
-                if (transform.position.x <= -11.25f)
+                if (transform.position.x <= -11.25f && _isDead == false)
                 {
                     transform.position = new Vector3(11.25f, 5.5f, 0);
                 }
@@ -209,7 +234,7 @@ public class Enemy : MonoBehaviour
             case MovementType.Right:
                 transform.Translate(Vector3.right * _speed * Time.deltaTime);
 
-                if (transform.position.x >= 11.25f)
+                if (transform.position.x >= 11.25f && _isDead == false)
                 {
                     transform.position = new Vector3(-11.25f, 2.75f, 0);
                 }
@@ -307,7 +332,8 @@ public class Enemy : MonoBehaviour
 
     void DeathSequence()
     {
-        _speed /= 2;
+        _isDead = true;
+        _speed = 2;
         _animator.SetTrigger("Dead");
         transform.GetComponent<CapsuleCollider2D>().enabled = false;
 

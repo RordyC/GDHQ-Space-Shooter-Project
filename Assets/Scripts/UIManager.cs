@@ -90,6 +90,9 @@ public class UIManager : MonoBehaviour
 
     public void UpdateLives(int lives)
     {
+        if (lives < 0)
+            return;
+
         _livesImage.sprite = _livesSprites[lives];
 
         if (lives <= 0)
