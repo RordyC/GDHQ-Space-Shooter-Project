@@ -157,9 +157,13 @@ MonoBehaviour:
   _tintColor: {r: 1, g: 1, b: 1, a: 0}
   _laserPrefab: {fileID: 7263147302341014713, guid: 7c8ca046d443c994a856e604714a26c0,
     type: 3}
+  _backwardsLaserPrefab: {fileID: 5295659395689407763, guid: 56fa66893952e3b47a65e542d62083bf,
+    type: 3}
   _shield: {fileID: 822189045}
   difficulty: 0
   _isShootingEnemy: 0
+  _canRamPlayer: 0
+  _canShootFromBehind: 0
   _movementType: 0
 --- !u!212 &6329011486288012852
 SpriteRenderer:

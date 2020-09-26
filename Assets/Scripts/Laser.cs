@@ -10,6 +10,9 @@ public class Laser : MonoBehaviour
     [SerializeField]
     private bool _isEnemyLaser = false;
 
+    [SerializeField]
+    private bool _firedBackwards = false;
+
     // Update is called once per frame
     void Update()
     {
@@ -18,7 +21,7 @@ public class Laser : MonoBehaviour
 
     void Movement()
     {
-        if (_isEnemyLaser == true)
+        if (_isEnemyLaser == true && _firedBackwards == false)
         {
             transform.Translate(Vector3.down * _speed * Time.deltaTime);
         }

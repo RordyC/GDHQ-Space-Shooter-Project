@@ -34,9 +34,14 @@ public class Enemy : MonoBehaviour
     private GameObject _laserPrefab = null;
 
     [SerializeField]
+    private GameObject _backwardsLaserPrefab = null;
+
+    [SerializeField]
     private GameObject _shield = null;
 
     private bool _shieldActive = false;
+
+    private float _nextFire = 0f;
 
     [Header("AI")]
 
@@ -47,6 +52,9 @@ public class Enemy : MonoBehaviour
 
     [SerializeField]
     private bool _canRamPlayer = false;
+
+    [SerializeField]
+    private bool _canShootFromBehind = false;
 
     private bool _beingLasered = false;
 
@@ -142,17 +150,37 @@ public class Enemy : MonoBehaviour
                 _isShootingEnemy = true;
                 StartCoroutine(FireLaserSequence());
 
-                int hasShield = Random.Range(0, 3);
-                if (hasShield == 2)
+                if (RandomOutOf(3))
                 {
                     _shield.SetActive(true);
                     _shieldActive = true;
                 }
 
-                int hasRam = Random.Range(0, 2);
-                if (hasRam == 1 && _movementRandomizer == 0)
+                if (RandomOutOf(2))
                 {
                     _canRamPlayer = true;
+                }
+                break;
+            case 4:
+                _movementRandomizer = Random.Range(0, 4);
+
+                _isShootingEnemy = true;
+                StartCoroutine(FireLaserSequence());
+
+                if (RandomOutOf(3))
+                {
+                    _shield.SetActive(true);
+                    _shieldActive = true;
+                }
+
+                if (RandomOutOf(2))
+                {
+                    _canRamPlayer = true;
+                }
+
+                if (RandomOutOf(2))
+                {
+                    _canShootFromBehind = true;
                 }
                 break;
             default:
@@ -207,7 +235,25 @@ public class Enemy : MonoBehaviour
                 _speed -= 4 * Time.deltaTime;
             }
         }
+
+        if (_canShootFromBehind == true && _isDead == false)
+        {
+            RaycastHit2D hit2D = Physics2D.Raycast(transform.position, Vector2.up, 10f, 1 << 8);
+            if (hit2D.collider != null)
+            {
+                if (hit2D.collider.CompareTag("Player"))
+                {
+                    if (Time.time >= _nextFire)
+                    {
+                        Instantiate(_backwardsLaserPrefab, transform.position, Quaternion.identity);
+                        _nextFire = Time.time + 0.5f;
+                    }
+
+                }
+            }
+        }
     }
+
 
     void Movement()
     {
@@ -241,6 +287,19 @@ public class Enemy : MonoBehaviour
                 break;
         }
         
+    }
+
+    bool RandomOutOf(int max)
+    {
+        int random = Random.Range(0, max);
+        if (random == 0)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     private void OnTriggerEnter2D (Collider2D other)
@@ -325,13 +384,13 @@ public class Enemy : MonoBehaviour
         if (_health <= 0)
         {
             _isShootingEnemy = false;
-            _shield.SetActive(false);
             DeathSequence();
         }
     }
 
     void DeathSequence()
     {
+        _shield.SetActive(false);
         _isDead = true;
         _speed = 2;
         _animator.SetTrigger("Dead");
