@@ -31,19 +31,38 @@ public class Enemy : MonoBehaviour
     private Color _tintColor = new Color(1,1,1,0);
 
     [SerializeField]
+    private Color _stalkerColor;
+
+    [SerializeField]
     private GameObject _laserPrefab = null;
 
     [SerializeField]
     private GameObject _backwardsLaserPrefab = null;
 
     [SerializeField]
+    private GameObject _stalkerLaserPrefab = null;
+
+    [SerializeField]
+    private Vector3[] _stalkerLaserPos = null;
+
+    [SerializeField]
     private GameObject _shield = null;
 
     private bool _shieldActive = false;
 
+    private bool _teleportEffect = false;
+    private float _teleportFade = 0f;
+
     private float _nextFire = 0f;
 
+    private WaitForSeconds _stalkerFireDelay = new WaitForSeconds(0.1f);
+    private WaitForSeconds _oneSecondDelay = new WaitForSeconds(1);
+    private WaitForSeconds _halfSecondDelay = new WaitForSeconds(0.5f);
+
     [Header("AI")]
+
+    [SerializeField]
+    private EnemyType _enemyType = EnemyType.Default;
 
     public int difficulty = 0;
 
@@ -72,14 +91,19 @@ public class Enemy : MonoBehaviour
         Down,
         Left,
         Right,
+        Teleport,
     }
 
     private int _movementRandomizer = 0;
 
+    private enum EnemyType
+    {
+        Default,
+        Stalker,
+    }
+
     [SerializeField]
     private MovementType _movementType = MovementType.Down;
-
-    private Vector3 _leftResetPos;
 
     // Start is called before the first frame update
     void Start()
@@ -139,13 +163,13 @@ public class Enemy : MonoBehaviour
                 _movementRandomizer = 0;
                 break;
             case 2:
-                _movementRandomizer = Random.Range(0, 4);
+                _movementRandomizer = Random.Range(0, 3);
 
                 _isShootingEnemy = true;
                 StartCoroutine(FireLaserSequence());
                 break;
             case 3:
-                _movementRandomizer = Random.Range(0, 4);
+                _movementRandomizer = Random.Range(0, 3);
 
                 _isShootingEnemy = true;
                 StartCoroutine(FireLaserSequence());
@@ -162,7 +186,7 @@ public class Enemy : MonoBehaviour
                 }
                 break;
             case 4:
-                _movementRandomizer = Random.Range(0, 4);
+                _movementRandomizer = Random.Range(0, 3);
 
                 _isShootingEnemy = true;
                 StartCoroutine(FireLaserSequence());
@@ -183,6 +207,12 @@ public class Enemy : MonoBehaviour
                     _canShootFromBehind = true;
                 }
                 break;
+            case 7:
+                _enemyType = EnemyType.Stalker;
+                _movementRandomizer = 3;
+                _health = 5;
+                _material.SetColor("_Color", _stalkerColor);
+                break;
             default:
                 _movementRandomizer = 0;
                 break;
@@ -198,6 +228,10 @@ public class Enemy : MonoBehaviour
                 break;
             case 2:
                 _movementType = MovementType.Right;
+                break;
+            case 3:
+                _movementType = MovementType.Teleport;
+                StartCoroutine(Teleport());
                 break;
             default:
                 _movementType = MovementType.Down;
@@ -250,6 +284,27 @@ public class Enemy : MonoBehaviour
                     }
 
                 }
+            }
+        }
+
+        if (_teleportEffect == true && _teleportFade < 1)
+        {
+            _teleportFade += 1.5f * Time.deltaTime;
+            _material.SetFloat("_Fade", _teleportFade);
+
+            if (_teleportFade > 1)
+            {
+                _teleportFade = 1;
+            }
+        }
+        else if (_teleportEffect == false && _teleportFade > 0)
+        {
+            _teleportFade -= 1.5f * Time.deltaTime;
+            _material.SetFloat("_Fade", _teleportFade);
+
+            if (_teleportFade < 0)
+            {
+                _teleportFade = 0;
             }
         }
     }
@@ -316,6 +371,9 @@ public class Enemy : MonoBehaviour
         }
         else if (other.tag == "Laser")
         {
+            if (_teleportFade < 0.5f && _enemyType == EnemyType.Stalker)
+                return;
+
             Destroy(other.gameObject);
             Damage();
         }
@@ -361,6 +419,31 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    IEnumerator Teleport()
+    {
+        while (_enemyType == EnemyType.Stalker && _isDead == false && _player != null)
+        {
+            yield return new WaitForSeconds(Random.Range(3.5f, 5f));
+            _teleportEffect = true;
+            Vector3 posToSpawn = _player.transform.position;
+            posToSpawn.y = 4;
+            transform.position = posToSpawn;
+            yield return _halfSecondDelay;
+            if (_isDead == false)
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    Instantiate(_stalkerLaserPrefab, transform.position + _stalkerLaserPos[i], Quaternion.identity);
+                    yield return _stalkerFireDelay;
+                }
+            }
+            yield return _oneSecondDelay;
+            _teleportEffect = false;
+            yield return _oneSecondDelay;
+            transform.position = new Vector3(0, 10, 0);
+        }
+    }
+
     void Damage()
     {
         if (_shieldActive == true)
@@ -390,6 +473,8 @@ public class Enemy : MonoBehaviour
 
     void DeathSequence()
     {
+        _material.SetFloat("_Fade", 1);
+        _material.SetColor("_Color", Color.white);
         _shield.SetActive(false);
         _isDead = true;
         _speed = 2;
@@ -404,7 +489,14 @@ public class Enemy : MonoBehaviour
         _audioSource.PlayOneShot(_deathSound);
 
         StartCoroutine(_cameraShake.Shake(0.1f, 0.1f));
-        _spawnManager.RemoveObject(this.gameObject);
+        if (_enemyType == EnemyType.Stalker)
+        {
+            _spawnManager.RemoveSpecialObject(this.gameObject);
+        }
+        else
+        {
+            _spawnManager.RemoveObject(this.gameObject);
+        }
         Destroy(this.gameObject, 1.8f);
     }
 }

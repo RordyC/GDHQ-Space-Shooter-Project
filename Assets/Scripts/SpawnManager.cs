@@ -19,6 +19,7 @@ public class SpawnManager : MonoBehaviour
     private float _powerupSpawnRate = 7f;
 
     private WaitForSeconds _oneSecondDelay = new WaitForSeconds(1f);
+    private WaitForSeconds _twoSecondDelay = new WaitForSeconds(2f);
     private WaitForSeconds _powerupSpawnDelay;
     private WaitForSeconds _nextWaveDelay = new WaitForSeconds(4f);
 
@@ -37,10 +38,16 @@ public class SpawnManager : MonoBehaviour
     private int _enemiesToSpawn = 0;
 
     [SerializeField]
+    private int _stalkersToSpawn = 0;
+
+    [SerializeField]
     private int _enemyDifficulty = 0;
 
     [SerializeField]
     private List<GameObject> _enemies = null;
+
+    [SerializeField]
+    private List<GameObject> _specialEnemies = null;
 
     private void Start()
     {
@@ -55,7 +62,7 @@ public class SpawnManager : MonoBehaviour
 
     private void Update()
     {
-        if (_enemiesToSpawn == 0 && _enemies.Count == 0 && _wave < 7 && _gameStarted == true)
+        if (_enemiesToSpawn == 0 && _enemies.Count == 0 && _wave < 8 && _gameStarted == true && _specialEnemies.Count == 0 && _stalkersToSpawn == 0)
         {
             StartCoroutine(StartNextWave());
         }
@@ -70,6 +77,12 @@ public class SpawnManager : MonoBehaviour
     {
         if (_enemies.Contains(gameObject))
         _enemies.Remove(gameObject);
+    }
+
+    public void RemoveSpecialObject(GameObject gameObject)
+    {
+        if (_specialEnemies.Contains(gameObject))
+            _specialEnemies.Remove(gameObject);
     }
 
     public void StartGame()
@@ -112,6 +125,11 @@ public class SpawnManager : MonoBehaviour
                 _enemyDifficulty = 4;
                 _enemiesToSpawn = 45;
                 break;
+            case 8:
+                _enemyDifficulty = 4;
+                _enemiesToSpawn = 10;
+                _stalkersToSpawn = 3;
+                break;
             default:
                 Debug.LogError("Invalid Wave!");
                 break;
@@ -121,15 +139,36 @@ public class SpawnManager : MonoBehaviour
     IEnumerator SpawnEnemies()
     {
         yield return _oneSecondDelay;
-        while (_isPlayerDead == false && _enemiesToSpawn > 0)
+        while (_isPlayerDead == false && _enemiesToSpawn > 0 || _isPlayerDead == false && _stalkersToSpawn > 0)
         {
-            Vector3 posToSpawn = new Vector3(Random.Range(-9.25f, 9.25f), 10, 0);
-            GameObject enemy = Instantiate(_enemyPrefab, posToSpawn, Quaternion.identity);
-            enemy.transform.GetComponent<Enemy>().difficulty = _enemyDifficulty;
-            enemy.transform.parent = _enemyContainer.transform;
-            _enemies.Add(enemy);
-            _enemiesToSpawn--;
-            yield return _oneSecondDelay;
+            if (_enemies.Count < 10)
+            {
+                Vector3 posToSpawn = new Vector3(Random.Range(-9.25f, 9.25f), 10, 0);
+                GameObject enemy = Instantiate(_enemyPrefab, posToSpawn, Quaternion.identity);
+                enemy.transform.parent = _enemyContainer.transform;
+
+                if (_stalkersToSpawn > 0 && _specialEnemies.Count == 0)
+                {
+                    enemy.transform.GetComponent<Enemy>().difficulty = 7;
+                    _specialEnemies.Add(enemy);
+                    _stalkersToSpawn--;
+                }
+                else if (_enemiesToSpawn > 0)
+                {
+                    enemy.transform.GetComponent<Enemy>().difficulty = _enemyDifficulty;
+                    _enemies.Add(enemy);
+                    _enemiesToSpawn--;
+                }
+            }
+
+            if (_specialEnemies.Count == 0)
+            {
+                yield return _oneSecondDelay;
+            }
+            else
+            {
+                yield return _twoSecondDelay;
+            }
         }
     }
 

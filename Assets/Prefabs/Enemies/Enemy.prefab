@@ -155,11 +155,19 @@ MonoBehaviour:
   _deathSound: {fileID: 8300000, guid: a885c043fab7e46438bba03ba9dab6bc, type: 3}
   _health: 1
   _tintColor: {r: 1, g: 1, b: 1, a: 0}
+  _stalkerColor: {r: 0.98039216, g: 0.45098037, b: 1, a: 1}
   _laserPrefab: {fileID: 7263147302341014713, guid: 7c8ca046d443c994a856e604714a26c0,
     type: 3}
   _backwardsLaserPrefab: {fileID: 5295659395689407763, guid: 56fa66893952e3b47a65e542d62083bf,
     type: 3}
+  _stalkerLaserPrefab: {fileID: 2188320151275462847, guid: 7c9bb3e22eff89f4b8517826f419e730,
+    type: 3}
+  _stalkerLaserPos:
+  - {x: 0.75, y: -0.5, z: 0}
+  - {x: 0, y: -0.9, z: 0}
+  - {x: -0.75, y: -0.5, z: 0}
   _shield: {fileID: 822189045}
+  _enemyType: 0
   difficulty: 0
   _isShootingEnemy: 0
   _canRamPlayer: 0
