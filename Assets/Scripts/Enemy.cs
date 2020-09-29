@@ -13,6 +13,8 @@ public class Enemy : MonoBehaviour
 
     private AudioSource _audioSource;
 
+    private BoxCollider2D _laserDetector;
+
     [SerializeField]
     private AudioClip _hitSound = null;
 
@@ -31,7 +33,7 @@ public class Enemy : MonoBehaviour
     private Color _tintColor = new Color(1,1,1,0);
 
     [SerializeField]
-    private Color _stalkerColor;
+    private Color _stalkerColor = Color.magenta;
 
     [SerializeField]
     private GameObject _laserPrefab = null;
@@ -74,6 +76,9 @@ public class Enemy : MonoBehaviour
 
     [SerializeField]
     private bool _canShootFromBehind = false;
+
+    [SerializeField]
+    private bool _canDodgeLaser = false;
 
     private bool _beingLasered = false;
 
@@ -152,6 +157,13 @@ public class Enemy : MonoBehaviour
             Debug.Log("Camera shake is null!");
         }
 
+        _laserDetector = transform.GetComponentInChildren<BoxCollider2D>();
+
+        if (_laserDetector == null)
+        {
+            Debug.LogError("Box Collider is NULL!");
+        }
+
         _fireRateDelay = new WaitForSeconds(_fireRate);
         
         switch (difficulty)
@@ -205,6 +217,33 @@ public class Enemy : MonoBehaviour
                 if (RandomOutOf(2))
                 {
                     _canShootFromBehind = true;
+                }
+                break;
+            case 5:
+                _movementRandomizer = Random.Range(0, 3);
+
+                _isShootingEnemy = true;
+                StartCoroutine(FireLaserSequence());
+
+                if (RandomOutOf(3))
+                {
+                    _shield.SetActive(true);
+                    _shieldActive = true;
+                }
+
+                if (RandomOutOf(2))
+                {
+                    _canRamPlayer = true;
+                }
+
+                if (RandomOutOf(2))
+                {
+                    _canShootFromBehind = true;
+                }
+
+                if (_movementRandomizer == 0)
+                {
+                    _canDodgeLaser = true;
                 }
                 break;
             case 7:
@@ -357,6 +396,16 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    public void LaserDetected()
+    {
+        if (_canDodgeLaser == true)
+        {
+            _canDodgeLaser = false;
+            StartCoroutine(Dodge());
+            Debug.Log("Worked!");
+        }
+    }
+
     private void OnTriggerEnter2D (Collider2D other)
     {
         if (other.tag == "Player")
@@ -441,6 +490,19 @@ public class Enemy : MonoBehaviour
             _teleportEffect = false;
             yield return _oneSecondDelay;
             transform.position = new Vector3(0, 10, 0);
+        }
+    }
+
+    IEnumerator Dodge()
+    {
+        int directionToMove = Random.Range(-1, 2);
+        float duration = 0.1f;
+        float elapsedTime = 0f;
+        while (elapsedTime < duration)
+        {
+            elapsedTime += Time.deltaTime;
+            transform.position += new Vector3(10 * directionToMove, 0, 0) * Time.deltaTime;
+            yield return null;
         }
     }
 

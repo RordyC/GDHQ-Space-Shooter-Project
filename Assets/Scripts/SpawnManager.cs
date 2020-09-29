@@ -126,7 +126,7 @@ public class SpawnManager : MonoBehaviour
                 _enemiesToSpawn = 45;
                 break;
             case 8:
-                _enemyDifficulty = 4;
+                _enemyDifficulty = 5;
                 _enemiesToSpawn = 10;
                 _stalkersToSpawn = 3;
                 break;
