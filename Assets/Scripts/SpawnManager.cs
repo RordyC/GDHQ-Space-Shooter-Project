@@ -92,6 +92,19 @@ public class SpawnManager : MonoBehaviour
         StartCoroutine(SpawnPowerupsRoutine());
     }
 
+    public Transform GetRandomEnemyTransform()
+    {
+        if (_enemies.Count > 0)
+        {
+            return _enemies[Random.Range(0, _enemies.Count)].GetComponent<Enemy>().targetPos;
+        }
+        else
+        {
+            return null;
+        }
+
+    }
+
     private void NextWave()
     {
         Debug.Log("Next Wave!");
@@ -185,7 +198,7 @@ public class SpawnManager : MonoBehaviour
         while (_isPlayerDead == false)
         {
             Vector3 posToSpawn = new Vector3(Random.Range(-9f, 9f), 11, 0);
-            int random = Random.Range(0, 111);
+            int random = Random.Range(0, 121);
             int powerupToSpawn = 7;
 
             if (random >= 0 && random <= 20)
@@ -215,6 +228,10 @@ public class SpawnManager : MonoBehaviour
             else if (random >= 101 && random <= 110)
             {
                 powerupToSpawn = 6;
+            }
+            else if (random >= 111 && random <= 120)
+            {
+                powerupToSpawn = 7;
             }
 
             GameObject powerup = Instantiate(_powerupPrefabs[powerupToSpawn],posToSpawn,Quaternion.identity);

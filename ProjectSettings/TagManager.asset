@@ -8,6 +8,7 @@ TagManager:
   - Enemy
   - Enemy_Laser
   - Laserbeam
+  - Missile
   layers:
   - Default
   - TransparentFX
@@ -47,4 +48,7 @@ TagManager:
     locked: 0
   - name: Forground
     uniqueID: 3485715499
+    locked: 0
+  - name: Powerups
+    uniqueID: 3696779093
     locked: 0

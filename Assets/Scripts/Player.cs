@@ -34,6 +34,9 @@ public class Player : MonoBehaviour
     private int _ammo = 0;
 
     [SerializeField]
+    private int _missileAmmo = 0;
+
+    [SerializeField]
     private float _thrusterFuel = 2f;
 
     [SerializeField]
@@ -56,6 +59,9 @@ public class Player : MonoBehaviour
 
     [SerializeField]
     private GameObject _tripleShotPrefab = null;
+
+    [SerializeField]
+    private GameObject _missilePrefab = null;
 
     [SerializeField]
     private GameObject _laserbeamGameObject = null;
@@ -132,7 +138,7 @@ public class Player : MonoBehaviour
         CalculateMovement();
         CalculateThrusters();
 
-        if (Input.GetKey(KeyCode.Space) && Time.time > _nextFire && _ammo >= 1 && _isLaserbeamActive == false)
+        if (Input.GetKey(KeyCode.Space) && Time.time > _nextFire && _ammo >= 1 && _isLaserbeamActive == false && _missileAmmo == 0)
         {
             FireLaser();
         }
@@ -140,6 +146,13 @@ public class Player : MonoBehaviour
         {
             _laserbeam.ActivateLaser();
             _laserbeamGameObject.transform.position = transform.position;
+        }
+        else if (Input.GetKey(KeyCode.Space) && _missileAmmo > 0 && Time.time > _nextFire)
+        {
+            _missileAmmo--;
+            Instantiate(_missilePrefab, transform.position + new Vector3(Random.Range(-0.5f, 0.5f), 1, 0), Quaternion.identity);
+            _nextFire = Time.time + (_fireRate / 1.5f);
+            //AudioSource.PlayClipAtPoint(_fireMissileClip, transform.position);
         }
         else if (Input.GetKeyDown(KeyCode.Space) && Time.time > _nextFire && _ammo <= 0)
         {
@@ -326,6 +339,9 @@ public class Player : MonoBehaviour
                 _electricityParticles.Play();
                 _isShockActive = true;
                 StartCoroutine(ShockPowerdownRoutine());
+                break;
+            case 7:
+                _missileAmmo += 30;
                 break;
             default:
                 Debug.Log("Invalid powerup ID!");

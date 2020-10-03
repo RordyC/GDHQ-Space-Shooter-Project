@@ -13,8 +13,6 @@ public class Enemy : MonoBehaviour
 
     private AudioSource _audioSource;
 
-    private BoxCollider2D _laserDetector;
-
     [SerializeField]
     private AudioClip _hitSound = null;
 
@@ -34,6 +32,8 @@ public class Enemy : MonoBehaviour
 
     [SerializeField]
     private Color _stalkerColor = Color.magenta;
+
+    public Transform targetPos;
 
     [SerializeField]
     private GameObject _laserPrefab = null;
@@ -155,13 +155,6 @@ public class Enemy : MonoBehaviour
         if (_cameraShake == null)
         {
             Debug.Log("Camera shake is null!");
-        }
-
-        _laserDetector = transform.GetComponentInChildren<BoxCollider2D>();
-
-        if (_laserDetector == null)
-        {
-            Debug.LogError("Box Collider is NULL!");
         }
 
         _fireRateDelay = new WaitForSeconds(_fireRate);
@@ -426,6 +419,11 @@ public class Enemy : MonoBehaviour
             Destroy(other.gameObject);
             Damage();
         }
+        else if (other.tag == "Missile")
+        {
+            Destroy(other.gameObject);
+            Damage();
+        }
         else if (other.tag == "Laserbeam")
         {
             _beingLasered = true;
@@ -535,6 +533,7 @@ public class Enemy : MonoBehaviour
 
     void DeathSequence()
     {
+        Destroy(targetPos.gameObject);
         _material.SetFloat("_Fade", 1);
         _material.SetColor("_Color", Color.white);
         _shield.SetActive(false);
