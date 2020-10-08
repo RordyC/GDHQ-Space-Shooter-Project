@@ -40,6 +40,9 @@ public class Player : MonoBehaviour
     private float _thrusterFuel = 2f;
 
     [SerializeField]
+    private bool _isMagnetActive = false;
+
+    [SerializeField]
     private AudioSource _lowAmmoClip = null;
     [SerializeField]
     private AudioSource _noAmmoClip = null;
@@ -80,6 +83,8 @@ public class Player : MonoBehaviour
     private Color[] _shieldStrengthColors = null;
     [SerializeField]
     private ParticleSystem _electricityParticles = null;
+    [SerializeField]
+    private ParticleSystem _magnetParticles = null;
 
     private UIManager _uiManager;
 
@@ -130,6 +135,7 @@ public class Player : MonoBehaviour
         _uiManager.UpdateAmmoCount(_ammo);
 
         _electricityParticles.Stop();
+        _magnetParticles.Stop();
     }
 
     // Update is called once per frame
@@ -163,6 +169,21 @@ public class Player : MonoBehaviour
         {
             _laserbeam.DeactivateLaser();
         }
+
+        if(Input.GetKey(KeyCode.C))
+        {
+            if (_isMagnetActive == false)
+            {
+                _isMagnetActive = true;
+                _magnetParticles.Play();
+            }
+        }
+        else
+        {
+            _magnetParticles.Stop();
+            _isMagnetActive = false;
+        }
+        
     }
 
     void CalculateMovement()
