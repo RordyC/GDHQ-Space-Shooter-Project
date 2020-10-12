@@ -7,6 +7,8 @@ public class Powerup : MonoBehaviour
     [SerializeField]
     private float _speed = 6f;
 
+    private float _rotateSpeed = 5f;
+
     [SerializeField]
     private int _powerupID = 0;
 
@@ -19,16 +21,20 @@ public class Powerup : MonoBehaviour
 
     private float _fade;
 
+    private bool _beingPulled = false;
+
+    private Quaternion _defaultRotation = Quaternion.identity;
+
     // Update is called once per frame
 
     private void Start()
     {
         _material = transform.GetComponent<SpriteRenderer>().material;
-        Damage();
     }
+
     void Update()
     {
-        transform.Translate(Vector3.down * _speed * Time.deltaTime);
+        Movement();
 
         if (transform.position.y < -5.75f)
         {
@@ -71,10 +77,37 @@ public class Powerup : MonoBehaviour
             Destroy(other.gameObject);
             Damage();
         }
+    }
 
+    private void OnTriggerStay2D(Collider2D other)
+    {
         if (other.tag == "Magnet")
         {
+            _beingPulled = true;
+            Vector2 direction = other.transform.position - transform.position;
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            Quaternion rotation = Quaternion.AngleAxis(angle + 90, Vector3.forward);
+            transform.rotation = Quaternion.Slerp(transform.rotation, rotation, _rotateSpeed * Time.deltaTime);
 
+            transform.position += transform.rotation * Vector3.down * (_speed * 3 * Time.deltaTime);
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.tag == "Magnet")
+        {
+            _beingPulled = false;
+        }
+    }
+
+    private void Movement()
+    {
+        if (_beingPulled == false)
+        {
+            //transform.Translate(Vector3.down * _speed * Time.deltaTime);
+            transform.rotation = Quaternion.Slerp(transform.rotation, _defaultRotation, 1 * Time.deltaTime);
+            transform.position += transform.rotation * Vector3.down * (_speed * Time.deltaTime);
         }
     }
 

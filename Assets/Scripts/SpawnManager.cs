@@ -201,35 +201,35 @@ public class SpawnManager : MonoBehaviour
             int random = Random.Range(0, 121);
             int powerupToSpawn = 7;
 
-            if (random >= 0 && random <= 20)
+            if (random < 20)
             {
                 powerupToSpawn = 0;
             }
-            else if (random >= 21 && random <= 40)
+            else if (random < 40)
             {
                 powerupToSpawn = 1;
             }
-            else if (random >= 41 && random <= 60)
+            else if (random < 60)
             {
                 powerupToSpawn = 3;
             }
-            else if (random >= 61 && random <= 85)
+            else if (random < 85)
             {
                 powerupToSpawn = 2;
             }
-            else if (random >= 86 && random <= 95)
+            else if (random < 95)
             {
                 powerupToSpawn = 4;
             }
-            else if (random >= 96 && random <= 100)
+            else if (random < 100)
             {
                 powerupToSpawn = 5;
             }
-            else if (random >= 101 && random <= 110)
+            else if (random < 110)
             {
                 powerupToSpawn = 6;
             }
-            else if (random >= 111 && random <= 120)
+            else if (random <= 120)
             {
                 powerupToSpawn = 7;
             }

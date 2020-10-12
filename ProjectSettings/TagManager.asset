@@ -9,6 +9,7 @@ TagManager:
   - Enemy_Laser
   - Laserbeam
   - Missile
+  - Magnet
   layers:
   - Default
   - TransparentFX

@@ -85,6 +85,8 @@ public class Player : MonoBehaviour
     private ParticleSystem _electricityParticles = null;
     [SerializeField]
     private ParticleSystem _magnetParticles = null;
+    [SerializeField]
+    private CircleCollider2D _magnetCollider = null;
 
     private UIManager _uiManager;
 
@@ -175,12 +177,14 @@ public class Player : MonoBehaviour
             if (_isMagnetActive == false)
             {
                 _isMagnetActive = true;
+                _magnetCollider.enabled = true;
                 _magnetParticles.Play();
             }
         }
         else
         {
             _magnetParticles.Stop();
+            _magnetCollider.enabled = false;
             _isMagnetActive = false;
         }
         
@@ -316,6 +320,10 @@ public class Player : MonoBehaviour
 
         if (_lives < 1)
         {
+            _magnetParticles.Stop();
+            _magnetCollider.enabled = false;
+            _isMagnetActive = false;
+
             _laserbeam.DeactivateLaser();
             _spawnManager.StopSpawning();
             Destroy(this.gameObject);
