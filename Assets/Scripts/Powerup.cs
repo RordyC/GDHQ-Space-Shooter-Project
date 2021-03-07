@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
 
 public class Powerup : MonoBehaviour
 {
@@ -12,9 +13,6 @@ public class Powerup : MonoBehaviour
     [SerializeField]
     private int _powerupID = 0;
 
-    [SerializeField]
-    private AudioClip _clip = null;
-
     private int _health = 6;
 
     private Material _material;
@@ -25,11 +23,18 @@ public class Powerup : MonoBehaviour
 
     private Quaternion _defaultRotation = Quaternion.identity;
 
+    private AudioSource _as;
     // Update is called once per frame
 
     private void Start()
     {
         _material = transform.GetComponent<SpriteRenderer>().material;
+
+        _as = GameObject.Find("Powerup_Collected").transform.GetComponent<AudioSource>();
+        if (_as == null)
+        {
+            Debug.LogError("Audio Source is NULL!");
+        }
     }
 
     void Update()
@@ -68,7 +73,9 @@ public class Powerup : MonoBehaviour
             {
                 Debug.Log("Player is null!");
             }
-            AudioSource.PlayClipAtPoint(_clip, new Vector3(0,1,-10));
+
+            _as.Play();
+            //AudioSource.PlayClipAtPoint(_clip, new Vector3(0,1,-10), 0.4f);
             Destroy(this.gameObject);
         }
 

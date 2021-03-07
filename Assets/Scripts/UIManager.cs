@@ -7,6 +7,12 @@ using TMPro;
 public class UIManager : MonoBehaviour
 {
     [SerializeField]
+    private int _currentScore = 0;
+
+    [SerializeField]
+    private int _currentLives = 3;
+
+    [SerializeField]
     private TextMeshProUGUI _scoreText = null;
 
     [SerializeField]
@@ -26,6 +32,9 @@ public class UIManager : MonoBehaviour
 
     [SerializeField]
     private TextMeshProUGUI _waveText = null;
+
+    [SerializeField]
+    private TextMeshProUGUI _finalScoreText = null;
 
     [SerializeField]
     private Animator _waveTextAnimator = null;
@@ -52,6 +61,8 @@ public class UIManager : MonoBehaviour
 
     private Color _tempColor;
 
+    private Animator _hurtAnimator;
+
     private void Start()
     {
         _gameManager = GameObject.Find("Game_Manager").GetComponent<GManager>();
@@ -61,6 +72,12 @@ public class UIManager : MonoBehaviour
             Debug.Log("GManager is null!");
         }
 
+        _hurtAnimator = GameObject.Find("Hurt").transform.GetComponent<Animator>();
+
+        if (_hurtAnimator == null)
+        {
+            Debug.LogError("Hurt Animator is NULL!");
+        }
          _tempColor = _thrusterFuelImage.color;
     }
 
@@ -86,6 +103,7 @@ public class UIManager : MonoBehaviour
     public void UpdateScore(int score)
     {
         _scoreText.text = "Score: " + score;
+        _currentScore = score;
     }
 
     public void UpdateLives(int lives)
@@ -93,8 +111,16 @@ public class UIManager : MonoBehaviour
         if (lives < 0)
             return;
 
+        if (lives < _currentLives)
+        {
+            _hurtAnimator.SetTrigger("Hurt");
+        }
+
+        _currentLives = lives;
+
         _livesImage.sprite = _livesSprites[lives];
 
+        if (_livesImage.sprite)
         if (lives <= 0)
         {
             GameOverSequence();
@@ -130,14 +156,22 @@ public class UIManager : MonoBehaviour
 
     public void UpdateWave(int wave)
     {
-        _waveText.text = "Wave: " + wave;
+        if (wave == 10)
+        {
+            _waveText.text = "DREADNAUGHT INCOMING";
+            _waveTextAnimator.SetTrigger("Flash");
+            return;
+        }
 
+        _waveText.text = "Wave: " + wave;
         _waveTextAnimator.SetTrigger("Flash");
     }
 
     void GameOverSequence()
     {
         _restartText.gameObject.SetActive(true);
+        _finalScoreText.gameObject.SetActive(true);
+        _finalScoreText.text = "Your final score was: " + _currentScore;
         StartCoroutine(GameOverTextFlicker());
         _gameManager.GameOver();
     }

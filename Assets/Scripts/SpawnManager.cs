@@ -9,6 +9,7 @@ public class SpawnManager : MonoBehaviour
     [SerializeField]
     private GameObject _enemyContainer = null;
     private bool _isPlayerDead = false;
+    private bool _isDreadnaughtDead = false;
 
     [Header("Powerups")]
 
@@ -24,6 +25,7 @@ public class SpawnManager : MonoBehaviour
     private WaitForSeconds _nextWaveDelay = new WaitForSeconds(4f);
 
     private UIManager _uiManager;
+    private GManager _gameManager;
 
     [Header("Game")]
 
@@ -49,6 +51,8 @@ public class SpawnManager : MonoBehaviour
     [SerializeField]
     private List<GameObject> _specialEnemies = null;
 
+    private int _maxEnemies = 10;
+
     private void Start()
     {
         _uiManager = GameObject.Find("Canvas").transform.GetComponent<UIManager>();
@@ -57,12 +61,18 @@ public class SpawnManager : MonoBehaviour
             Debug.LogError("UI Manager is NULL!");
         }
 
+        _gameManager = GameObject.Find("Game_Manager").GetComponent<GManager>();
+        if (_gameManager == null)
+        {
+            Debug.Log("Game manager is NULL!");
+        }
+
         _powerupSpawnDelay = new WaitForSeconds(_powerupSpawnRate);
     }
 
     private void Update()
     {
-        if (_enemiesToSpawn == 0 && _enemies.Count == 0 && _wave < 8 && _gameStarted == true && _specialEnemies.Count == 0 && _stalkersToSpawn == 0)
+        if (_enemiesToSpawn == 0 && _enemies.Count == 0 && _wave < 10 && _gameStarted == true && _specialEnemies.Count == 0 && _stalkersToSpawn == 0)
         {
             StartCoroutine(StartNextWave());
         }
@@ -107,41 +117,51 @@ public class SpawnManager : MonoBehaviour
 
     private void NextWave()
     {
-        Debug.Log("Next Wave!");
         _wave++;
         _uiManager.UpdateWave(_wave);
 
         switch (_wave)
         {
             case 1:
-                _enemiesToSpawn = 15;
+                _enemiesToSpawn = 10;
                 break;
             case 2:
                 _enemyDifficulty = 1;
-                _enemiesToSpawn = 20;
+                _enemiesToSpawn = 15;
                 break;
             case 3:
                 _enemyDifficulty = 2;
-                _enemiesToSpawn = 25;
+                _enemiesToSpawn = 20;
                 break;
             case 4:
-                _enemiesToSpawn = 30;
+                _enemyDifficulty = 3;
+                _enemiesToSpawn = 20;
                 break;
             case 5:
-                _enemiesToSpawn = 35;
+                _enemyDifficulty = 4;
+                _enemiesToSpawn = 25;
                 break;
             case 6:
-                _enemyDifficulty = 3;
-                _enemiesToSpawn = 40;
+                _enemyDifficulty = 4;
+                _enemiesToSpawn = 30;
                 break;
             case 7:
-                _enemyDifficulty = 4;
-                _enemiesToSpawn = 45;
+                _enemyDifficulty = 5;
+                _enemiesToSpawn = 35;
                 break;
             case 8:
+                _stalkersToSpawn = 1;
+                break;
+            case 9:
                 _enemyDifficulty = 5;
-                _enemiesToSpawn = 10;
+                _enemiesToSpawn = 40;
                 _stalkersToSpawn = 3;
+                break;
+            case 10:
+                _maxEnemies = 7;
+                _enemyDifficulty = 5;
+                _enemiesToSpawn = 25;
+                _gameManager.BossMode();
                 break;
             default:
                 Debug.LogError("Invalid Wave!");
@@ -149,12 +169,58 @@ public class SpawnManager : MonoBehaviour
         }
     }
 
+    public void DreadnaughtPhaseII()
+    {
+        _stalkersToSpawn = 3;
+        _maxEnemies = 3;
+        if (_enemiesToSpawn == 0 && _enemies.Count == 0 &&  _specialEnemies.Count == 0)
+        {
+            StartCoroutine(SpawnEnemies());
+        }
+    }
+
+    public void DreadnaughtDestroyed()
+    {
+        //_uiManager.WinGameSequence();
+        _isDreadnaughtDead = true;
+
+        _enemiesToSpawn = 0;
+        _stalkersToSpawn = 0;
+
+        List<GameObject> currentEnemies = new List<GameObject>();
+        
+        foreach (GameObject enemy in _enemies)
+        {
+            currentEnemies.Add(enemy);
+        }
+
+        foreach (GameObject specialEnemy in _specialEnemies)
+        {
+            currentEnemies.Add(specialEnemy);
+        }
+
+        foreach (GameObject enemy in currentEnemies)
+        {
+            var enemyToDestroy = enemy.transform.GetComponent<Enemy>();
+            enemyToDestroy.Kill();
+        }
+    }
+
+    public void SkipToWave(int wave)
+    {
+        _wave = wave;
+    }
+
+    //When wave gets to 9.
+    //Go into boss mode.
+    //Start Spawning Boss Stuff.                                                                        
+
     IEnumerator SpawnEnemies()
     {
         yield return _oneSecondDelay;
         while (_isPlayerDead == false && _enemiesToSpawn > 0 || _isPlayerDead == false && _stalkersToSpawn > 0)
         {
-            if (_enemies.Count < 10)
+            if (_enemies.Count < _maxEnemies)
             {
                 Vector3 posToSpawn = new Vector3(Random.Range(-9.25f, 9.25f), 10, 0);
                 GameObject enemy = Instantiate(_enemyPrefab, posToSpawn, Quaternion.identity);
@@ -174,7 +240,7 @@ public class SpawnManager : MonoBehaviour
                 }
             }
 
-            if (_specialEnemies.Count == 0)
+            if (_specialEnemies.Count == 0 && _wave < 9)
             {
                 yield return _oneSecondDelay;
             }
@@ -195,7 +261,7 @@ public class SpawnManager : MonoBehaviour
     IEnumerator SpawnPowerupsRoutine()
     {
         yield return _oneSecondDelay;
-        while (_isPlayerDead == false)
+        while (_isPlayerDead == false && _isDreadnaughtDead == false)
         {
             Vector3 posToSpawn = new Vector3(Random.Range(-9f, 9f), 11, 0);
             int random = Random.Range(0, 121);
@@ -203,11 +269,11 @@ public class SpawnManager : MonoBehaviour
 
             if (random < 20)
             {
-                powerupToSpawn = 0;
+                powerupToSpawn = 2;
             }
             else if (random < 40)
             {
-                powerupToSpawn = 1;
+                powerupToSpawn = 4;
             }
             else if (random < 60)
             {
@@ -215,19 +281,19 @@ public class SpawnManager : MonoBehaviour
             }
             else if (random < 85)
             {
-                powerupToSpawn = 2;
+                powerupToSpawn = 0;
             }
             else if (random < 95)
             {
-                powerupToSpawn = 4;
+                powerupToSpawn = 1;
             }
             else if (random < 100)
             {
-                powerupToSpawn = 5;
+                powerupToSpawn = 6;
             }
             else if (random < 110)
             {
-                powerupToSpawn = 6;
+                powerupToSpawn = 5;
             }
             else if (random <= 120)
             {

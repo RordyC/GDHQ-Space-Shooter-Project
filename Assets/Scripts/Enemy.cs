@@ -50,6 +50,8 @@ public class Enemy : MonoBehaviour
     [SerializeField]
     private GameObject _shield = null;
 
+    private ParticleSystem _shieldBreakEffect;
+
     private bool _shieldActive = false;
 
     private bool _teleportEffect = false;
@@ -157,8 +159,16 @@ public class Enemy : MonoBehaviour
             Debug.Log("Camera shake is null!");
         }
 
+        _shieldBreakEffect = transform.GetComponentInChildren<ParticleSystem>();
+        if (_shieldBreakEffect == null)
+        {
+            Debug.LogError("Shield Break Effect is NULL!");
+        }
+
         _fireRateDelay = new WaitForSeconds(_fireRate);
-        
+
+        _speed = Random.Range((_speed - 0.5f), (_speed + 0.5f));
+
         switch (difficulty)
         {
             case 0:
@@ -168,39 +178,43 @@ public class Enemy : MonoBehaviour
                 _movementRandomizer = 0;
                 break;
             case 2:
-                _movementRandomizer = Random.Range(0, 3);
+                _movementRandomizer = Random.Range(0, 4);
 
                 _isShootingEnemy = true;
                 StartCoroutine(FireLaserSequence());
                 break;
             case 3:
-                _movementRandomizer = Random.Range(0, 3);
+                _movementRandomizer = Random.Range(0, 4);
 
                 _isShootingEnemy = true;
                 StartCoroutine(FireLaserSequence());
 
-                if (RandomOutOf(3))
+                /*if (RandomOutOf(3))
                 {
                     _shield.SetActive(true);
                     _shieldActive = true;
                 }
-
+                */
+                 
                 if (RandomOutOf(2))
                 {
                     _canRamPlayer = true;
                 }
+
                 break;
             case 4:
-                _movementRandomizer = Random.Range(0, 3);
+                _movementRandomizer = Random.Range(0, 4);
 
                 _isShootingEnemy = true;
                 StartCoroutine(FireLaserSequence());
 
+                /*
                 if (RandomOutOf(3))
                 {
                     _shield.SetActive(true);
                     _shieldActive = true;
                 }
+                */
 
                 if (RandomOutOf(2))
                 {
@@ -211,9 +225,14 @@ public class Enemy : MonoBehaviour
                 {
                     _canShootFromBehind = true;
                 }
+
+                if (_movementRandomizer == 0)
+                {
+                    _canDodgeLaser = true;
+                }
                 break;
             case 5:
-                _movementRandomizer = Random.Range(0, 3);
+                _movementRandomizer = Random.Range(0, 4);
 
                 _isShootingEnemy = true;
                 StartCoroutine(FireLaserSequence());
@@ -241,7 +260,7 @@ public class Enemy : MonoBehaviour
                 break;
             case 7:
                 _enemyType = EnemyType.Stalker;
-                _movementRandomizer = 3;
+                _movementRandomizer = 4;
                 _health = 5;
                 _material.SetColor("_Color", _stalkerColor);
                 break;
@@ -262,6 +281,9 @@ public class Enemy : MonoBehaviour
                 _movementType = MovementType.Right;
                 break;
             case 3:
+                _movementType = MovementType.Down;
+                break;
+            case 4:
                 _movementType = MovementType.Teleport;
                 StartCoroutine(Teleport());
                 break;
@@ -395,7 +417,6 @@ public class Enemy : MonoBehaviour
         {
             _canDodgeLaser = false;
             StartCoroutine(Dodge());
-            Debug.Log("Worked!");
         }
     }
 
@@ -510,6 +531,7 @@ public class Enemy : MonoBehaviour
         {
             _shieldActive = false;
             _shield.SetActive(false);
+            _shieldBreakEffect.Play();
             return;
         }
 
@@ -529,6 +551,12 @@ public class Enemy : MonoBehaviour
             _isShootingEnemy = false;
             DeathSequence();
         }
+    }
+
+    public void Kill()
+    {
+        _isShootingEnemy = false;
+        DeathSequence();
     }
 
     void DeathSequence()

@@ -46,7 +46,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc502c4bf9a03cb43825676ba9e56364, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _speed: 15
+  _speed: 20
+  _isEnemyLaser: 0
+  _firedBackwards: 0
 --- !u!212 &2128871724618006286
 SpriteRenderer:
   m_ObjectHideFlags: 0
